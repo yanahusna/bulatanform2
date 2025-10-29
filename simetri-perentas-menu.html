@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sifat Simetri Perentas Bulatan</title>
+<style>
+body {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  font-family: "Arial Black", sans-serif;
+  color: white;
+  text-align: center;
+  padding: 40px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 2.5rem;
+  color: #f39c12;
+  margin-bottom: 10px;
+}
+
+p {
+  color: #dcdde1;
+  margin-bottom: 40px;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.card {
+  background: rgba(255,255,255,0.1);
+  border: 2px solid #f39c12;
+  border-radius: 15px;
+  padding: 25px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.card:hover {
+  background: rgba(255,255,255,0.2);
+  transform: scale(1.05);
+}
+
+.card h2 {
+  color: #fff;
+  font-size: 1.3rem;
+}
+
+.card p {
+  font-size: 0.9rem;
+  color: #f5f6fa;
+}
+</style>
+</head>
+<body>
+
+<h1>Sifat Simetri Perentas Bulatan</h1>
+<p>Pilih animasi atau nota interaktif untuk meneroka sifat-sifat perentas dalam bulatan.</p>
+
+<div class="container">
+  <div class="card" onclick="location.href='note1.html'">
+    <h2>1️⃣ Diameter sebagai Paksi Simetri</h2>
+    <p>Tunjuk bagaimana diameter membahagi bulatan kepada dua bahagian sama.</p>
+  </div>
+  <div class="card" onclick="location.href='jejari-perentas.html'">
+    <h2>2️⃣ Jejari Serenjang Perentas</h2>
+    <p>Jejari yang berserenjang dengan perentas akan membahagi dua perentas itu.</p>
+  </div>
+  <div class="card" onclick="location.href='dua-perentas-pusat.html'">
+    <h2>3️⃣ Dua Perentas Bertemu di Pusat</h2>
+    <p>Dua jejari yang serenjang dengan dua perentas bertemu di pusat bulatan.</p>
+  </div>
+  <div class="card" onclick="location.href='perentas-sama-lengkok-garis-tengah.html'">
+    <h2>4️⃣ Perentas Sama Panjang → Lengkok Sama Panjang</h2>
+    <p>Perentas yang sama panjang menghasilkan lengkok yang juga sama panjang.</p>
+  </div>
+  <div class="card" onclick="location.href='perentas-sama-jarak-pusat.html'">
+    <h2>5️⃣ Perentas Sama Panjang → Jarak Sama Dari Pusat</h2>
+    <p>Jika dua perentas sama panjang, jaraknya dari pusat juga sama.</p>
+  </div>
+</div>
+
+</body>
+</html>

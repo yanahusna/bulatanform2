@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pembelajaran Diameter (Jejari Tetap & Jejari Putar)</title>
+<style>
+body{
+  font-family:'Arial Black',sans-serif;
+  background:linear-gradient(135deg,#1a1a2e,#16213e);
+  color:#fff;
+  text-align:center;
+  padding:20px;
+  min-height:100vh;
+}
+.container{
+  background:rgba(255,255,255,0.95);
+  color:#000;
+  border-radius:20px;
+  padding:25px;
+  max-width:900px;
+  margin:auto;
+}
+canvas{
+  background:#f5e6d3;
+  border:3px solid #f39c12;
+  border-radius:15px;
+  margin-top:15px;
+}
+button{
+  padding:10px 20px;
+  margin-top:15px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(135deg,#3498db,#2980b9);
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+button:hover{transform:translateY(-2px);}
+.step{
+  background:#ecf0f1;
+  border-left:6px solid #f39c12;
+  border-radius:10px;
+  padding:10px 15px;
+  margin-top:15px;
+  text-align:left;
+}
+h1{color:#f39c12;}
+p{font-size:1.1rem;}
+.formula{font-family:'Courier New',monospace;font-weight:bold;color:#2c3e50;}
+.correct{color:#27ae60;font-weight:bold;}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📏 Dua Jejari Membentuk Diameter</h1>
+  <p>Jejari kanan kekal tetap manakala satu lagi jejari berpusing ke kiri sebanyak 180° untuk membentuk diameter.</p>
+
+  <canvas id="rajah" width="600" height="400"></canvas>
+  <button id="btnAnimate">▶️ Tunjuk Simulasi</button>
+  <div id="steps"></div>
+</div>
+
+<script>
+const c = document.getElementById("rajah");
+const ctx = c.getContext("2d");
+const cx = 300, cy = 200, r = 100;
+let angle = 0;
+let animating = false;
+
+function lukisRajah(showFull=false){
+  ctx.clearRect(0,0,c.width,c.height);
+
+  // Bulatan
+  ctx.beginPath();
+  ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.strokeStyle="#2c3e50"; ctx.lineWidth=3; ctx.stroke();
+
+  // Pusat
+  ctx.beginPath();
+  ctx.arc(cx,cy,4,0,Math.PI*2);
+  ctx.fillStyle="#000"; ctx.fill();
+  ctx.font="bold 16px Arial";
+  ctx.fillText("O",cx-20,cy-8);
+
+  // Jejari kanan (tetap)
+  const xr = cx + r;
+  const yr = cy;
+  ctx.beginPath();
+  ctx.moveTo(cx,cy);
+  ctx.lineTo(xr,yr);
+  ctx.strokeStyle="#27ae60";
+  ctx.lineWidth=4;
+  ctx.stroke();
+  ctx.fillStyle="#000";
+  ctx.font="bold 14px Arial";
+  ctx.fillText("5 cm", cx + r/2 - 15, cy - 10);
+
+  // Jejari berpusing ke kiri
+  const x = cx + r * Math.cos(angle);
+  const y = cy + r * Math.sin(angle);
+  ctx.beginPath();
+  ctx.moveTo(cx,cy);
+  ctx.lineTo(x,y);
+  ctx.strokeStyle="#2980b9";
+  ctx.lineWidth=4;
+  ctx.stroke();
+
+  // Label jejari bergerak
+  ctx.fillStyle="#000";
+  ctx.font="bold 14px Arial";
+  ctx.fillText("5 cm", cx + (r/2)*Math.cos(angle) - 10, cy + (r/2)*Math.sin(angle) - 10);
+
+  // Bila dah habis 180°, tunjuk diameter penuh
+  if(showFull){
+    ctx.beginPath();
+    ctx.moveTo(cx - r, cy);
+    ctx.lineTo(cx + r, cy);
+    ctx.strokeStyle="#e74c3c";
+    ctx.lineWidth=5;
+    ctx.stroke();
+    ctx.fillStyle="#000";
+    ctx.font="bold 18px Arial";
+    ctx.fillText("Diameter = 10 cm", cx - 80, cy + 30);
+  }
+}
+
+function animateRotation(){
+  if(animating) return;
+  animating = true;
+  angle = 0;
+  document.getElementById("steps").innerHTML = "";
+
+  function frame(){
+    lukisRajah();
+    angle += Math.PI/90; // rotate slowly (180° total)
+    if(angle < Math.PI){
+      requestAnimationFrame(frame);
+    } else {
+      animating = false;
+      lukisRajah(true);
+      tunjukLangkah();
+    }
+  }
+  frame();
+}
+
+function tunjukLangkah(){
+  const el=document.getElementById("steps");
+  el.innerHTML=`
+  <div class='step'>
+    <b>Langkah 1:</b> Lukis jejari dari pusat <b>O</b> ke kanan bulatan (panjang 5 cm).
+  </div>
+  <div class='step'>
+    <b>Langkah 2:</b> Jejari kedua yang sama panjang berpusing dari kanan ke kiri sebanyak 180°.
+  </div>
+  <div class='step'>
+    <b>Langkah 3:</b> Kini kedua-dua jejari membentuk satu garis lurus melalui pusat.<br>
+    <span class='formula'>Diameter = 5 cm + 5 cm = 10 cm</span>
+  </div>
+  <div class='step correct'>
+    ✅ Jadi, <b>Diameter = 2 × Jejari = 10 cm</b>.
+  </div>
+  `;
+}
+
+document.getElementById("btnAnimate").onclick = animateRotation;
+
+// Lukisan awal
+lukisRajah();
+</script>
+<button id="btnAnimate" onclick="goBack() "> Kembali </button>
+
+<script>
+function goBack(){
+  // Check if quiz index is stored
+  const lastQ = localStorage.getItem('lastQuestion');
+  if(lastQ !== null){
+    // Go back to quiz page and pass the question index
+    window.location.href = "soalan-jejari-perentas.html?question=" + lastQ;
+  } else {
+    history.back(); // fallback
+  }
+}
+</script>
+
+</body>
+</html>

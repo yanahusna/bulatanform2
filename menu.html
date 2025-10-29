@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menu Utama - Ciri Bulatan</title>
+<style>
+body {
+  font-family: 'Arial Black', sans-serif;
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  color: #fff;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.menu-container {
+  background: rgba(255,255,255,0.95);
+  color: #000;
+  border-radius: 20px;
+  padding: 40px 30px;
+  text-align: center;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+  width: min(500px, 90vw);
+}
+h1 {
+  font-size: 2.3rem;
+  color: #f39c12;
+  margin-bottom: 10px;
+}
+h2 {
+  font-size: 1rem;
+  color: #2c3e50;
+  margin-bottom: 30px;
+  font-weight: normal;
+}
+.menu-btn {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 15px;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.menu-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+.btn-quiz { background: linear-gradient(135deg,#27ae60,#2ecc71); }
+.btn-jalan { background: linear-gradient(135deg,#3498db,#2980b9); }
+.btn-info { background: linear-gradient(135deg,#9b59b6,#8e44ad); }
+.footer {
+  margin-top: 30px;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+</style>
+</head>
+<body>
+  <div class="menu-container">
+    <h1>📘 Bulatan</h1>
+    <h2>Pilih aktiviti untuk mula belajar secara interaktif</h2>
+
+    <button class="menu-btn btn-quiz" onclick="location.href='level1.html'">🧠 Level 1</button>
+    <button class="menu-btn btn-jalan" onclick="location.href='simetri-perentas-menu.html'">📐 Level 2</button>
+    <button class="menu-btn btn-info" onclick="location.href='nota.html'">📖 Level 3</button>
+
+    <div class="footer">© 2025 Interaktif Matematik | Dibangunkan oleh Cik Adriana Husna</div>
+  </div>
+</body>
+</html>

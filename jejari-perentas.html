@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jejari Berserenjang dengan Perentas</title>
+<style>
+body {
+  background: #0d1b2a;
+  color: #fff;
+  font-family: "Arial Black", sans-serif;
+  text-align: center;
+  padding: 20px;
+}
+canvas {
+  background: #f5e6d3;
+  border: 4px solid #f39c12;
+  border-radius: 10px;
+  display: block;
+  margin: 20px auto;
+}
+button {
+  border: none;
+  padding: 12px 25px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 10px 5px;
+  transition: transform 0.3s ease;
+}
+button:hover { transform: translateY(-3px); }
+#showLineBtn {
+  background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+}
+#showLengthBtn {
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+}
+#stopBtn {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+</style>
+</head>
+<body>
+<div style="margin-top:20px;">
+  <button onclick="location.href='simetri-perentas-menu.html'"
+  style="padding:12px 25px;border:none;border-radius:10px;
+  background:linear-gradient(135deg,#8e44ad,#9b59b6);color:#fff;
+  font-weight:bold;cursor:pointer;">
+    ⬅️ Kembali ke Menu Utama
+  </button>
+   <button onclick="location.href='level1.html'"
+  style="padding:12px 25px;border:none;border-radius:10px;
+  background:linear-gradient(135deg,#8e44ad,#9b59b6);color:#fff;
+  font-weight:bold;cursor:pointer;">
+    ⬅️ Level 1
+  </button>
+</div>
+    
+<h1>Jejari Berserenjang dengan Perentas</h1>
+<p>Jejari yang berserenjang dengan perentas akan membahagi dua perentas kepada dua bahagian sama panjang.</p>
+
+<canvas id="canvas" width="520" height="420"></canvas>
+
+<button id="showLineBtn">Tunjuk Garisan Sahaja</button>
+<button id="showLengthBtn">Tunjuk Panjang (5 cm)</button>
+<button id="stopBtn">Henti Animasi</button>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const cx = canvas.width / 2;
+const cy = canvas.height / 2;
+const radius = 130;
+let running = false;
+let animationId;
+let progress = 0;
+let showLength = false;
+
+// Lukis bulatan asas
+function drawCircleBase() {
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.strokeStyle = "#2c3e50";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Titik pusat
+  ctx.beginPath();
+  ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+  ctx.fillStyle = "#000";
+  ctx.fill();
+
+  ctx.font = "bold 16px Arial";
+  ctx.fillStyle = "#000";
+  ctx.fillText("Pusat Bulatan", cx + 15, cy - 10);
+}
+
+// Lukis perentas
+function drawChord() {
+  const yChord = cy + 80;
+  const chordHalf = 90;
+  const x1 = cx - chordHalf;
+  const x2 = cx + chordHalf;
+
+  // Garis perentas
+  ctx.beginPath();
+  ctx.moveTo(x1, yChord);
+  ctx.lineTo(x2, yChord);
+  ctx.strokeStyle = "#9b59b6";
+  ctx.lineWidth = 4;
+  ctx.stroke();
+
+  // Tanda | | menunjukkan sama panjang
+  ctx.strokeStyle = "#000";
+  ctx.lineWidth = 2;
+  // kiri
+  ctx.beginPath();
+  ctx.moveTo(cx - 40, yChord - 10);
+  ctx.lineTo(cx - 40, yChord + 10);
+  ctx.moveTo(cx - 45, yChord - 10);
+  ctx.lineTo(cx - 45, yChord + 10);
+  ctx.stroke();
+  // kanan
+  ctx.beginPath();
+  ctx.moveTo(cx + 40, yChord - 10);
+  ctx.lineTo(cx + 40, yChord + 10);
+  ctx.moveTo(cx + 45, yChord - 10);
+  ctx.lineTo(cx + 45, yChord + 10);
+  ctx.stroke();
+
+  // Label perentas
+  ctx.font = "bold 16px Arial";
+  ctx.fillStyle = "#9b59b6";
+  ctx.fillText("Perentas", cx - 40, yChord + 25);
+
+  // Label ukuran (jika aktif)
+  if (showLength) {
+    ctx.font = "bold 15px Arial";
+    ctx.fillStyle = "#9b59b6";
+    ctx.fillText("5 cm", cx - 70, yChord - 10);
+    ctx.fillText("5 cm", cx + 25, yChord - 10);
+  }
+
+  return { yChord };
+}
+
+// Lukis animasi jejari
+function drawAnimation() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawCircleBase();
+  const { yChord } = drawChord();
+
+  // Hujung jejari di bulatan
+  const yEnd = cy + Math.sqrt(radius ** 2 - 0 ** 2);
+  const currentY = cy + (yEnd - cy) * progress;
+
+  // Garis jejari
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(cx, currentY);
+  ctx.strokeStyle = "#3498db";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Titik hujung jejari
+  ctx.beginPath();
+  ctx.arc(cx, currentY, 8, 0, Math.PI * 2);
+  ctx.fillStyle = "#3498db";
+  ctx.fill();
+
+  // Label jejari
+  const midY = (cy + currentY) / 2;
+  ctx.font = "bold 16px Arial";
+  ctx.fillStyle = "#3498db";
+  ctx.fillText("Jejari", cx + 15, midY - 10);
+
+  // Garisan serenjang dan 90°
+  if (progress >= 1) {
+    ctx.beginPath();
+    ctx.moveTo(cx - 10, yChord);
+    ctx.lineTo(cx + 10, yChord);
+    ctx.strokeStyle = "#e74c3c";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // Label 90° di kiri
+    ctx.font = "bold 14px Arial";
+    ctx.fillStyle = "#e74c3c";
+    ctx.fillText("90°", cx - 40, yChord - 5);
+  }
+
+  if (progress < 1) progress += 0.02;
+  if (running) animationId = requestAnimationFrame(drawAnimation);
+}
+
+// Kawalan butang
+document.getElementById("showLineBtn").addEventListener("click", () => {
+  running = true;
+  progress = 0;
+  showLength = false;
+  cancelAnimationFrame(animationId);
+  drawAnimation();
+});
+
+document.getElementById("showLengthBtn").addEventListener("click", () => {
+  running = true;
+  progress = 0;
+  showLength = true;
+  cancelAnimationFrame(animationId);
+  drawAnimation();
+});
+
+document.getElementById("stopBtn").addEventListener("click", () => {
+  running = false;
+  cancelAnimationFrame(animationId);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawCircleBase();
+  drawChord();
+});
+
+// Lukisan awal
+drawCircleBase();
+drawChord();
+</script>
+</body>
+</html>

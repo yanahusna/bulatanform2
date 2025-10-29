@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Dalgona - Interaktif</title>
+<style>
+body {
+    font-family: 'Arial Black', sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+.quiz-container {
+    background: rgba(255,255,255,0.95);
+    color: #000;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 900px;
+    width: 100%;
+    text-align: center;
+}
+.quiz-title { font-size: 2.5rem; color: #f39c12; margin-bottom: 10px; }
+.quiz-subtitle { font-size: 1.2rem; color: #34495e; margin-bottom: 20px; }
+.question h3 { font-size: 1.3rem; margin-bottom: 15px; }
+.options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+canvas { border: 2px solid #34495e; border-radius: 15px; cursor: pointer; transition: 0.3s; }
+.next-btn, .restart-btn, .nextlesson-btn {
+    margin-top: 20px;
+    padding: 15px 25px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+.next-btn { background: #3498db; color: white; display: none; }
+.restart-btn { background: #e74c3c; color: white; display: none; }
+.nextlesson-btn { background: #27ae60; color: white; display: none; }
+.feedback {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-top: 15px;
+}
+.feedback.correct { color: #27ae60; }
+.feedback.wrong { color: #e74c3c; }
+.result-container { display: none; text-align: center; }
+.result-container h2 { font-size: 2rem; color: #27ae60; margin-bottom: 15px; }
+.result-container p { font-size: 1.2rem; margin-bottom: 15px; }
+</style>
+</head>
+<body>
+<div class="quiz-container">
+    <h1 class="quiz-title">Quiz Dalgona 🍪</h1>
+    <p class="quiz-subtitle">Klik pada bentuk yang betul!</p>
+    <div id="quiz"></div>
+    <div id="feedback" class="feedback"></div>
+
+    <button class="next-btn" id="nextBtn">Soalan Seterusnya</button>
+    <button class="restart-btn" id="restartBtn">Main Semula</button>
+    <button class="nextlesson-btn" id="nextLessonBtn">📘 Pembelajaran Seterusnya</button>
+
+    <div class="result-container" id="resultContainer">
+        <h2>Keputusan Anda!</h2>
+        <p id="scoreText"></p>
+    </div>
+</div>
+
+<script>
+const questions = [
+    {question:"Mana satu ialah Jejari?", options:["Diameter","Jejari","Sektor","Tembereng"], answer:"Jejari"},
+    {question:"Mana satu ialah Diameter?", options:["Diameter","Jejari","Sektor","Tembereng"], answer:"Diameter"},
+    {question:"Mana satu ialah Sektor Major?", options:["Sektor Minor","Sektor Major","Tembereng Major","Lengkok Minor"], answer:"Sektor Major"},
+    {question:"Mana satu ialah Sektor Minor?", options:["Sektor Major","Sektor Minor","Tembereng Minor","Lengkok Major"], answer:"Sektor Minor"},
+    {question:"Mana satu ialah Tembereng Major?", options:["Tembereng Minor","Tembereng Major","Sektor Major","Lengkok Minor"], answer:"Tembereng Major"},
+    {question:"Mana satu ialah Tembereng Minor?", options:["Tembereng Minor","Tembereng Major","Sektor Minor","Lengkok Major"], answer:"Tembereng Minor"},
+    {question:"Mana satu ialah Lengkok Major?", options:["Lengkok Minor","Lengkok Major","Sektor Minor","Tembereng Major"], answer:"Lengkok Major"},
+    {question:"Mana satu ialah Lengkok Minor?", options:["Lengkok Minor","Lengkok Major","Sektor Major","Tembereng Minor"], answer:"Lengkok Minor"},
+    {question:"Mana satu ialah Sektor?", options:["Sektor","Tembereng","Jejari","Diameter"], answer:"Sektor"},
+    {question:"Mana satu ialah Tembereng?", options:["Sektor","Tembereng","Jejari","Diameter"], answer:"Tembereng"}
+];
+
+let currentQuestion = 0;
+let score = 0;
+let selectedAnswer = null;
+
+const quizDiv = document.getElementById('quiz');
+const nextBtn = document.getElementById('nextBtn');
+const restartBtn = document.getElementById('restartBtn');
+const nextLessonBtn = document.getElementById('nextLessonBtn');
+const resultContainer = document.getElementById('resultContainer');
+const scoreText = document.getElementById('scoreText');
+const feedbackDiv = document.getElementById('feedback');
+
+function drawShape(ctx, type, highlight=null){
+    const cx=100, cy=100, r=60;
+    ctx.clearRect(0,0,200,200);
+    ctx.lineWidth=3;
+    ctx.strokeStyle="#2c3e50";
+    ctx.fillStyle="rgba(243,156,18,0.3)";
+
+    if(type==="Diameter"){
+        ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx-r,cy); ctx.lineTo(cx+r,cy);
+        ctx.strokeStyle="#e74c3c"; ctx.lineWidth=4; ctx.stroke();
+    } else if(type==="Jejari"){
+        ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+r,cy);
+        ctx.strokeStyle="#27ae60"; ctx.lineWidth=4; ctx.stroke();
+    } else if(type.includes("Sektor")){
+        ctx.beginPath(); ctx.moveTo(cx,cy);
+        const angle = type.includes("Major") ? Math.PI*1.2 : Math.PI*0.6;
+        ctx.arc(cx,cy,r,0,angle); ctx.lineTo(cx,cy);
+        ctx.fill(); ctx.stroke();
+    } else if(type.includes("Tembereng")){
+        ctx.beginPath();
+        const angle = type.includes("Major") ? Math.PI*1.2 : Math.PI*0.6;
+        ctx.arc(cx,cy,r,0,angle); ctx.lineTo(cx+r,cy); ctx.stroke();
+    } else if(type.includes("Lengkok")){
+        ctx.beginPath();
+        const angle = type.includes("Major") ? Math.PI*1.2 : Math.PI*0.6;
+        ctx.arc(cx,cy,r,0,angle); ctx.strokeStyle="#9b59b6"; ctx.lineWidth=4; ctx.stroke();
+    }
+
+    if(highlight){
+        ctx.strokeStyle=highlight;
+        ctx.lineWidth=6;
+        ctx.strokeRect(0,0,200,200);
+    }
+}
+
+function loadQuestion(){
+    selectedAnswer = null;
+    feedbackDiv.textContent = "";
+    feedbackDiv.className = "feedback";
+    const q = questions[currentQuestion];
+    quizDiv.innerHTML = `<div class="question"><h3>Soalan ${currentQuestion+1}: ${q.question}</h3><div class="options"></div></div>`;
+    const optionsDiv = quizDiv.querySelector('.options');
+    q.options.forEach(opt=>{
+        const canvas=document.createElement('canvas');
+        canvas.width=200; canvas.height=200;
+        drawShape(canvas.getContext('2d'),opt);
+        canvas.onclick = ()=>selectOption(canvas,opt);
+        optionsDiv.appendChild(canvas);
+    });
+    nextBtn.style.display="none";
+}
+
+function selectOption(canvas,opt){
+    if(selectedAnswer) return;
+    selectedAnswer = opt;
+    const correct = questions[currentQuestion].answer;
+    const canvases = document.querySelectorAll('canvas');
+    canvases.forEach(c=>{
+        const ctx=c.getContext('2d');
+        const answerText = questions[currentQuestion].options[Array.from(canvases).indexOf(c)];
+        if(answerText===correct){
+            drawShape(ctx,answerText,"green");
+        } else {
+            drawShape(ctx,answerText,"#ccc");
+        }
+    });
+
+    if(selectedAnswer===correct){
+        score++;
+        feedbackDiv.textContent = "✅ Betul!";
+        feedbackDiv.classList.add("correct");
+    } else {
+        feedbackDiv.textContent = "❌ Salah!";
+        feedbackDiv.classList.add("wrong");
+    }
+
+    nextBtn.style.display="block";
+}
+
+nextBtn.onclick = ()=>{
+    currentQuestion++;
+    if(currentQuestion<questions.length){
+        loadQuestion();
+    } else showResult();
+};
+
+function showResult(){
+    quizDiv.style.display="none";
+    feedbackDiv.style.display="none";
+    nextBtn.style.display="none";
+    restartBtn.style.display="block";
+    nextLessonBtn.style.display="inline-block";
+    resultContainer.style.display="block";
+    scoreText.textContent = `Anda menjawab ${score} daripada ${questions.length} soalan dengan betul.`;
+}
+
+restartBtn.onclick = ()=>{
+    currentQuestion=0; score=0;
+    feedbackDiv.style.display="block";
+    quizDiv.style.display="block";
+    restartBtn.style.display="none";
+    nextLessonBtn.style.display="none";
+    resultContainer.style.display="none";
+    loadQuestion();
+};
+
+nextLessonBtn.onclick = ()=>{
+    window.location.href = 'simetri-perentas-menu.html'; // ubah ke halaman nota sebenar
+};
+
+loadQuestion();
+</script>
+</body>
+</html>

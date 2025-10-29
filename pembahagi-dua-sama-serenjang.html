@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Pembahagi Dua Sama Serenjang - Bersentuhan</title>
+<style>
+body{
+  background:#0d1b2a;color:#fff;font-family:"Arial Black",sans-serif;
+  text-align:center;padding:20px
+}
+canvas{
+  background:#f5e6d3;border:4px solid #f39c12;border-radius:10px;
+  display:block;margin:20px auto
+}
+button{
+  border:none;padding:12px 20px;border-radius:10px;color:#fff;
+  font-weight:bold;cursor:pointer;margin:6px;transition:transform .2s
+}
+button:hover{transform:translateY(-2px)}
+#randomBtn{background:linear-gradient(135deg,#2980b9,#3498db)}
+#autoBtn{background:linear-gradient(135deg,#27ae60,#2ecc71)}
+#stopBtn{background:linear-gradient(135deg,#e74c3c,#c0392b)}
+</style>
+</head>
+<body>
+    <div style="margin-top:20px;">
+  <button onclick="location.href='simetri-perentas-menu.html'"
+  style="padding:12px 25px;border:none;border-radius:10px;
+  background:linear-gradient(135deg,#8e44ad,#9b59b6);color:#fff;
+  font-weight:bold;cursor:pointer;">
+    ⬅️ Kembali ke Menu Utama
+  </button>
+   <button onclick="location.href='level1.html'"
+  style="padding:12px 25px;border:none;border-radius:10px;
+  background:linear-gradient(135deg,#8e44ad,#9b59b6);color:#fff;
+  font-weight:bold;cursor:pointer;">
+    ⬅️ Level 1
+  </button>
+</div>
+
+<h1>Pembahagi Dua Sama Serenjang (Jejari Sentiasa Bersentuhan)</h1>
+<p>Jejari yang melalui titik tengah perentas sentiasa berserenjang dengan perentas, di mana pun kedudukan mereka dalam bulatan.</p>
+
+<canvas id="cv" width="560" height="460"></canvas>
+<div>
+  <button id="randomBtn">Posisi Baharu</button>
+  <button id="autoBtn">Auto Gerak</button>
+  <button id="stopBtn">Henti</button>
+</div>
+
+<script>
+const cvs = document.getElementById('cv');
+const ctx = cvs.getContext('2d');
+const cx = cvs.width/2, cy = cvs.height/2, R = 150;
+
+let anim=null;
+let t=0;
+let angle=Math.PI/6;
+let h=R*0.4;
+
+function clear(){ctx.clearRect(0,0,cvs.width,cvs.height);}
+
+function drawBase(){
+  ctx.beginPath();
+  ctx.arc(cx,cy,R,0,Math.PI*2);
+  ctx.strokeStyle="#2c3e50";ctx.lineWidth=3;ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,6,0,Math.PI*2);
+  ctx.fillStyle="#000";ctx.fill();
+  ctx.font="bold 16px Arial";ctx.fillStyle="#000";
+  ctx.fillText("Pusat Bulatan",cx+14,cy-10);
+}
+
+function drawScene(){
+  clear();drawBase();
+
+  const u={x:Math.cos(angle),y:Math.sin(angle)};    // arah jejari
+  const v={x:-Math.sin(angle),y:Math.cos(angle)};   // serenjang
+
+  // titik tengah perentas berada di atas jejari
+  const Mx=cx+u.x*h, My=cy+u.y*h;
+
+  // panjang separuh perentas
+  const halfLen=Math.sqrt(Math.max(R*R-h*h,0));
+
+  // hujung perentas
+  const Ax=Mx+v.x*halfLen, Ay=My+v.y*halfLen;
+  const Bx=Mx-v.x*halfLen, By=My-v.y*halfLen;
+
+  // jejari (sentuh di titik tengah)
+  ctx.beginPath();
+  ctx.moveTo(cx,cy);
+  ctx.lineTo(Mx+u.x*(R-h),My+u.y*(R-h));
+  ctx.strokeStyle="#3498db";ctx.lineWidth=3;ctx.stroke();
+
+  // perentas
+  ctx.beginPath();
+  ctx.moveTo(Ax,Ay);
+  ctx.lineTo(Bx,By);
+  ctx.strokeStyle="#9b59b6";ctx.lineWidth=4;ctx.stroke();
+
+  // tanda ||
+  ctx.strokeStyle="#000";ctx.lineWidth=2;
+  const markOffset=26, markSize=8;
+  function twin(px,py){
+    ctx.beginPath();
+    ctx.moveTo(px+u.x*markSize,py+u.y*markSize);
+    ctx.lineTo(px-u.x*markSize,py-u.y*markSize);
+    ctx.moveTo(px+u.x*(markSize-4),py+u.y*(markSize-4));
+    ctx.lineTo(px-u.x*(markSize-4),py-u.y*(markSize-4));
+    ctx.stroke();
+  }
+  twin(Mx-v.x*markOffset,My-v.y*markOffset);
+  twin(Mx+v.x*markOffset,My+v.y*markOffset);
+
+  // label
+  ctx.font="bold 15px Arial";
+  ctx.fillStyle="#3498db";
+  ctx.fillText("Jejari", Mx+u.x*30, My+u.y*30);
+  ctx.fillStyle="#9b59b6";
+  ctx.fillText("Perentas", Mx-v.x*60, My+v.y*30);
+
+  // tanda 90°
+  ctx.save();
+  ctx.translate(Mx,My);
+  ctx.rotate(angle);
+  ctx.beginPath();
+  ctx.moveTo(-10,0);
+  ctx.lineTo(10,0);
+  ctx.strokeStyle="#e74c3c";ctx.lineWidth=3;ctx.stroke();
+  ctx.restore();
+
+  ctx.font="bold 14px Arial";ctx.fillStyle="#e74c3c";
+  ctx.fillText("90°", Mx-25, My-8);
+}
+
+function randomize(){
+  angle=Math.random()*Math.PI*2;
+  const limit=R*0.6;
+  h=(Math.random()*2-1)*limit;
+  drawScene();
+}
+
+function auto(){
+  t+=0.02;
+  angle+=0.01;
+  h=Math.sin(t)*R*0.5;
+  drawScene();
+  anim=requestAnimationFrame(auto);
+}
+
+document.getElementById('randomBtn').onclick=()=>{
+  if(anim)cancelAnimationFrame(anim),anim=null;
+  randomize();
+};
+document.getElementById('autoBtn').onclick=()=>{
+  if(anim)cancelAnimationFrame(anim);
+  anim=requestAnimationFrame(auto);
+};
+document.getElementById('stopBtn').onclick=()=>{
+  if(anim)cancelAnimationFrame(anim),anim=null;
+  drawScene();
+};
+
+randomize();
+</script>
+</body>
+</html>

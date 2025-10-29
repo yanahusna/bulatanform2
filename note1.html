@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animasi Diameter & Jejari Bulatan</title>
+<style>
+body {
+  background: #0d1b2a;
+  color: #fff;
+  font-family: "Arial Black", sans-serif;
+  text-align: center;
+  padding: 20px;
+}
+canvas {
+  background: #f5e6d3;
+  border: 4px solid #f39c12;
+  border-radius: 10px;
+  display: block;
+  margin: 20px auto;
+}
+#info {
+  font-size: 1.2rem;
+  color: #f39c12;
+  margin-top: 15px;
+}
+button {
+  border: none;
+  padding: 12px 25px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 10px 5px;
+  transition: transform 0.3s ease;
+}
+button:hover { transform: translateY(-3px); }
+#diameterBtn {
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+}
+#radiusBtn {
+  background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+}
+#stopBtn {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+</style>
+</head>
+<body>
+    <div style="margin-top:20px;">
+  <button onclick="location.href='simetri-perentas-menu.html'"
+  style="padding:12px 25px;border:none;border-radius:10px;
+  background:linear-gradient(135deg,#8e44ad,#9b59b6);color:#fff;
+  font-weight:bold;cursor:pointer;">
+    ⬅️ Kembali ke Menu Utama
+  </button>
+   <button onclick="location.href='level1.html'"
+  style="padding:12px 25px;border:none;border-radius:10px;
+  background:linear-gradient(135deg,#8e44ad,#9b59b6);color:#fff;
+  font-weight:bold;cursor:pointer;">
+    ⬅️ Level 1
+  </button>
+</div>
+
+<h1>Animasi Diameter & Jejari Bulatan</h1>
+<p>Lihat pergerakan untuk memahami konsep diameter dan jejari bulatan.</p>
+
+<canvas id="canvas" width="500" height="400"></canvas>
+<p id="info">Diameter = 10 cm → Setiap sisi = 5 cm | Jejari = 5 cm</p>
+
+<button id="diameterBtn">Tunjuk Motion Diameter</button>
+<button id="radiusBtn">Tunjuk Motion Jejari</button>
+<button id="stopBtn">Henti Animasi</button>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const cx = canvas.width / 2;
+const cy = canvas.height / 2;
+const radius = 120;
+let angle = 0;
+let running = false;
+let mode = ""; // "diameter" atau "radius"
+let animationId;
+
+// Fungsi asas untuk lukis bulatan dan pusat
+function drawCircleBase() {
+  // Bulatan utama
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.strokeStyle = "#2c3e50";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Titik pusat (O)
+  ctx.beginPath();
+  ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+  ctx.fillStyle = "#000";
+  ctx.fill();
+
+  // Label "O"
+  ctx.font = "bold 16px Arial";
+  ctx.fillStyle = "#000";
+  ctx.fillText("O", cx + 10, cy - 10);
+}
+
+// Motion Diameter
+function drawDiameterMotion() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawCircleBase();
+
+  const x1 = cx + Math.cos(angle) * radius;
+  const y1 = cy + Math.sin(angle) * radius;
+  const x2 = cx - Math.cos(angle) * radius;
+  const y2 = cy - Math.sin(angle) * radius;
+
+  // Garis diameter
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.strokeStyle = "#27ae60";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Label "10 cm"
+  const midX = (x1 + x2) / 2;
+  const midY = (y1 + y2) / 2;
+  ctx.save();
+  ctx.translate(midX, midY);
+  ctx.rotate(angle);
+  ctx.fillStyle = "#000";
+  ctx.font = "bold 18px Arial";
+  ctx.fillText("10 cm", -30, -10);
+  ctx.restore();
+
+  // Titik di hujung
+  ctx.beginPath();
+  ctx.arc(x1, y1, 8, 0, Math.PI * 2);
+  ctx.fillStyle = "#27ae60";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x2, y2, 8, 0, Math.PI * 2);
+  ctx.fillStyle = "#27ae60";
+  ctx.fill();
+
+  angle += 0.02;
+  if (running && mode === "diameter") {
+    animationId = requestAnimationFrame(drawDiameterMotion);
+  }
+}
+
+// Motion Jejari
+function drawRadiusMotion() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawCircleBase();
+
+  const x = cx + Math.cos(angle) * radius;
+  const y = cy + Math.sin(angle) * radius;
+
+  // Garis jejari
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(x, y);
+  ctx.strokeStyle = "#3498db";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Label "5 cm"
+  const midX = (cx + x) / 2;
+  const midY = (cy + y) / 2;
+  ctx.save();
+  ctx.translate(midX, midY);
+  ctx.rotate(angle);
+  ctx.fillStyle = "#000";
+  ctx.font = "bold 18px Arial";
+  ctx.fillText("5 cm", -15, -10);
+  ctx.restore();
+
+  // Titik di hujung jejari
+  ctx.beginPath();
+  ctx.arc(x, y, 8, 0, Math.PI * 2);
+  ctx.fillStyle = "#3498db";
+  ctx.fill();
+
+  // Titik pusat (O)
+  ctx.beginPath();
+  ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+  ctx.fillStyle = "#000";
+  ctx.fill();
+  ctx.font = "bold 16px Arial";
+  ctx.fillStyle = "#000";
+  ctx.fillText("O", cx + 10, cy - 10);
+
+  angle += 0.02;
+  if (running && mode === "radius") {
+    animationId = requestAnimationFrame(drawRadiusMotion);
+  }
+}
+
+// Kawalan butang
+document.getElementById("diameterBtn").addEventListener("click", () => {
+  running = true;
+  mode = "diameter";
+  angle = 0;
+  cancelAnimationFrame(animationId);
+  drawDiameterMotion();
+});
+
+document.getElementById("radiusBtn").addEventListener("click", () => {
+  running = true;
+  mode = "radius";
+  angle = 0;
+  cancelAnimationFrame(animationId);
+  drawRadiusMotion();
+});
+
+document.getElementById("stopBtn").addEventListener("click", () => {
+  running = false;
+  cancelAnimationFrame(animationId);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawCircleBase(); // Lukis semula bulatan dan pusat selepas henti
+});
+
+// Lukis bulatan awal
+drawCircleBase();
+</script>
+</body>
+</html>

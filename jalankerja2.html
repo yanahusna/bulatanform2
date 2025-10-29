@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pembelajaran Jejari dan Perentas (O ke A)</title>
+<style>
+body{
+  font-family: 'Arial Black', sans-serif;
+  background: linear-gradient(135deg,#1a1a2e,#16213e);
+  color:#fff;
+  text-align:center;
+  padding:20px;
+  min-height:100vh;
+}
+.container{
+  background:rgba(255,255,255,0.95);
+  color:#000;
+  border-radius:20px;
+  padding:25px;
+  max-width:900px;
+  margin:auto;
+}
+canvas{
+  background:#f5e6d3;
+  border:3px solid #f39c12;
+  border-radius:15px;
+  margin-top:15px;
+}
+button{
+  padding:10px 20px;
+  margin-top:15px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(135deg,#27ae60,#2ecc71);
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+button:hover{ transform:translateY(-2px);}
+.step{
+  background:#ecf0f1;
+  border-left:6px solid #f39c12;
+  border-radius:10px;
+  padding:10px 15px;
+  margin-top:15px;
+  text-align:left;
+}
+h1{ color:#f39c12; }
+p{ font-size:1.1rem; }
+.formula{ font-family:'Courier New', monospace; font-weight:bold; color:#2c3e50;}
+.correct{ color:#27ae60; font-weight:bold; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📐 Jejari Berserenjang dengan Perentas (O ke A)</h1>
+  <p>Apabila jejari berserenjang dengan perentas, ia membahagi perentas kepada dua bahagian sama panjang.</p>
+
+  <canvas id="rajah" width="600" height="400"></canvas>
+  <button id="btnAnimate">▶️ Tunjuk Simulasi</button>
+  <div id="steps"></div>
+</div>
+
+<script>
+const c = document.getElementById("rajah");
+const ctx = c.getContext("2d");
+const cx = 300, cy = 180, r = 120;
+const OC = 48; // analogi 4 cm
+let animating = false;
+let progress = 0;
+
+function lukisRajah(showHighlight=false){
+  ctx.clearRect(0,0,c.width,c.height);
+
+  // Bulatan
+  ctx.beginPath();
+  ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.strokeStyle="#2c3e50"; ctx.lineWidth=3; ctx.stroke();
+
+  // Garis serenjang OC
+  ctx.beginPath();
+  ctx.moveTo(cx,cy);
+  ctx.lineTo(cx,cy+OC);
+  ctx.setLineDash([5,5]);
+  ctx.strokeStyle="#27ae60";
+  ctx.lineWidth=3;
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Garis chord AB
+  const half = Math.sqrt(r*r - OC*OC);
+  const A = {x:cx-half, y:cy+OC};
+  const B = {x:cx+half, y:cy+OC};
+  ctx.beginPath();
+  ctx.moveTo(A.x,A.y);
+  ctx.lineTo(B.x,B.y);
+  ctx.strokeStyle="#8e44ad";
+  ctx.lineWidth=4;
+  ctx.stroke();
+
+  // Label titik
+  ctx.fillStyle="#000";
+  ctx.font="bold 16px Arial";
+  ctx.fillText("A",A.x-15,A.y+6);
+  ctx.fillText("B",B.x+8,B.y+6);
+  ctx.fillText("O",cx-8,cy-8);
+  ctx.fillText("C",cx-8,cy+OC+16);
+
+  // Tanda 90°
+  ctx.beginPath();
+  ctx.moveTo(cx-12,cy+OC);
+  ctx.lineTo(cx-12,cy+OC-12);
+  ctx.lineTo(cx,cy+OC-12);
+  ctx.strokeStyle="#e74c3c"; ctx.lineWidth=3; ctx.stroke();
+
+  // Animasi jejari ke arah titik A (bukan B)
+  ctx.beginPath();
+  ctx.moveTo(cx,cy);
+  ctx.lineTo(cx - half * progress, cy + OC * progress);
+  ctx.strokeStyle=showHighlight ? "#e74c3c" : "#999";
+  ctx.lineWidth=showHighlight ? 4 : 2;
+  ctx.stroke();
+
+  // Label panjang
+  ctx.fillStyle="#000";
+  ctx.font="bold 14px Arial";
+  ctx.fillText("r = 10 cm",cx+15,cy-5);
+  ctx.fillText("OC = 4 cm",cx+15,(cy+cy+OC)/2);
+  ctx.fillText("AB = ?",cx+15,cy+OC+25);
+}
+
+function animateHypotenuse(){
+  if(animating) return;
+  animating=true;
+  progress=0;
+  const stepsEl=document.getElementById("steps");
+  stepsEl.innerHTML="";
+
+  function frame(){
+    lukisRajah(true);
+    progress+=0.02;
+    if(progress<1){
+      requestAnimationFrame(frame);
+    } else {
+      animating=false;
+      tunjukLangkah();
+    }
+  }
+  frame();
+}
+
+function tunjukLangkah(){
+  const el=document.getElementById("steps");
+  el.innerHTML=`
+  <div class='step'>
+    <b>Langkah 1:</b> Jejari OC berserenjang dengan perentas AB.<br>
+    Maka titik C ialah titik tengah AB.<br>
+    Jadi <span class='formula'>AC = CB = ½ AB</span>.
+  </div>
+
+  <div class='step'>
+    <b>Langkah 2:</b> Gunakan <span class='formula'>Teorem Pythagoras</span> dalam segi tiga OCA:<br>
+    <span class='formula'>OA² = OC² + AC²</span>
+  </div>
+
+  <div class='step'>
+    <b>Langkah 3:</b> Masukkan nilai yang diberi:<br>
+    <span class='formula'>10² = 4² + AC²</span><br>
+    <span class='formula'>100 = 16 + AC²</span><br>
+    <span class='formula'>AC² = 84</span><br>
+    <span class='formula'>AC = √84 = 9.17 cm</span>
+  </div>
+
+  <div class='step'>
+    <b>Langkah 4:</b> Oleh sebab <span class='formula'>AB = 2 × AC</span>,<br>
+    <span class='formula'>AB = 2 × 9.17 = 18.34 cm</span>
+  </div>
+
+  <div class='step correct'>
+    ✅ Jadi, panjang perentas <b>AB ≈ 18.3 cm</b>.
+  </div>
+  `;
+}
+
+document.getElementById("btnAnimate").onclick=animateHypotenuse;
+
+// Lukisan awal
+lukisRajah();
+</script>
+<button id="btnAnimate" onclick="goBack() "> Kembali </button>
+
+<script>
+function goBack(){
+  // Check if quiz index is stored
+  const lastQ = localStorage.getItem('lastQuestion');
+  if(lastQ !== null){
+    // Go back to quiz page and pass the question index
+    window.location.href = "soalan-jejari-perentas.html?question=" + lastQ;
+  } else {
+    history.back(); // fallback
+  }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jalan Kira Soalan 3 – Jarak Pusat ke Perentas</title>
+<style>
+body{
+  font-family:'Arial Black',sans-serif;
+  background:linear-gradient(135deg,#1a1a2e,#16213e);
+  color:#fff; text-align:center; padding:20px; min-height:100vh;
+}
+.container{
+  background:rgba(255,255,255,0.95); color:#000;
+  border-radius:20px; padding:25px; max-width:900px; margin:auto;
+}
+canvas{
+  background:#f5e6d3; border:3px solid #f39c12;
+  border-radius:15px; margin-top:15px;
+}
+button{
+  padding:10px 20px; margin-top:15px; border:none; border-radius:10px;
+  background:linear-gradient(135deg,#3498db,#2980b9);
+  color:white; font-weight:bold; cursor:pointer;
+}
+button:hover{transform:translateY(-2px);}
+.step{
+  background:#ecf0f1; border-left:6px solid #f39c12;
+  border-radius:10px; padding:10px 15px; margin-top:15px; text-align:left;
+}
+h1{color:#f39c12;}
+.formula{font-family:'Courier New',monospace;font-weight:bold;color:#2c3e50;}
+.correct{color:#27ae60;font-weight:bold;}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📏 Soalan 3: Jarak Pusat ke Perentas</h1>
+  <p>Jejari <b>r = 10 cm</b> dan perentas <b>AB = 12 cm</b>. Cari jarak <b>OC</b>.</p>
+
+  <canvas id="rajah" width="600" height="400"></canvas>
+  <button id="btnAnimate">▶️ Tunjuk Simulasi</button>
+  <button onclick="goBack()">← Kembali</button>
+  <div id="steps"></div>
+</div>
+
+<script>
+const c=document.getElementById("rajah");
+const ctx=c.getContext("2d");
+const cx=300, cy=200, r=120;
+let step=0;
+
+function lukisRajah(a=false,b=false,cLine=false,triangle=false){
+  ctx.clearRect(0,0,c.width,c.height);
+
+  // bulatan
+  ctx.beginPath();
+  ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.strokeStyle="#2c3e50"; ctx.lineWidth=3; ctx.stroke();
+
+  // pusat
+  ctx.beginPath();
+  ctx.arc(cx,cy,4,0,Math.PI*2);
+  ctx.fillStyle="#000"; ctx.fill();
+  ctx.font="bold 16px Arial";
+  ctx.fillText("O",cx-15,cy-10);
+
+  const half=72, d=Math.sqrt(r*r-half*half);
+  const y=cy+d, Ax=cx-half, Bx=cx+half;
+
+  if(a){ // perentas
+    ctx.beginPath();
+    ctx.moveTo(Ax,y); ctx.lineTo(Bx,y);
+    ctx.strokeStyle="#9b59b6"; ctx.lineWidth=5; ctx.stroke();
+    ctx.fillStyle="#000";
+    ctx.fillText("A",Ax-12,y+15);
+    ctx.fillText("B",Bx+8,y+15);
+  }
+
+  if(b){ // jejari
+    ctx.beginPath();
+    ctx.moveTo(cx,cy); ctx.lineTo(cx,Bx);
+    ctx.setLineDash([6,6]); ctx.strokeStyle="#27ae60"; ctx.lineWidth=3;
+    ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillText("r = 10 cm",cx+20,cy-10);
+  }
+
+  if(cLine){ // OC
+    ctx.beginPath();
+    ctx.moveTo(cx,cy); ctx.lineTo(cx,y);
+    ctx.strokeStyle="#e74c3c"; ctx.lineWidth=4; ctx.stroke();
+    ctx.fillStyle="#000";
+    ctx.fillText("C",cx+10,y+15);
+    ctx.fillText("AB = 12 cm",cx-50,y+40);
+  }
+
+  if(triangle){ // segitiga berserenjang
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(cx,y);
+    ctx.lineTo(cx+half,y);
+    ctx.closePath();
+    ctx.strokeStyle="#34495e"; ctx.lineWidth=3; ctx.stroke();
+    // tanda 90°
+    ctx.save(); ctx.translate(cx,y);
+    ctx.beginPath(); ctx.moveTo(-10,0); ctx.lineTo(0,-10); ctx.lineTo(10,0);
+    ctx.strokeStyle="#000"; ctx.lineWidth=2; ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function animate(){
+  step=0;
+  document.getElementById("steps").innerHTML="";
+  const timer=setInterval(()=>{
+    step++;
+    if(step===1){
+      lukisRajah(true,false,false,false);
+      tambahLangkah("<b>Langkah 1:</b> Lukis perentas AB = 12 cm pada bulatan berpusat O.");
+    }
+    else if(step===2){
+      lukisRajah(true,true,false,false);
+      tambahLangkah("<b>Langkah 2:</b> Lukis jejari r = 10 cm dari O ke bulatan.");
+    }
+    else if(step===3){
+      lukisRajah(true,true,true,false);
+      tambahLangkah("<b>Langkah 3:</b> Lukis garis serenjang OC ke perentas AB di titik tengah C.");
+    }
+    else if(step===4){
+      lukisRajah(true,true,true,true);
+      tambahLangkah("<b>Langkah 4:</b> Terbentuk segitiga berserenjang OBC dengan r = 10 cm dan AB = 6 cm.");
+    }
+    else if(step===5){
+      tambahLangkah(`<b>Langkah 5 (Kiraan):</b><br>
+        <span class='formula'>OC = √(r² − AB²)</span><br>
+        <span class='formula'>OC = √(10² − 6²) = √64 = 8 cm</span><br>
+        ✅ Maka jarak pusat ke perentas ialah <b>8 cm</b>.`);
+      clearInterval(timer);
+    }
+  },2500);
+}
+
+function tambahLangkah(html){
+  document.getElementById("steps").innerHTML +=
+    `<div class='step'>${html}</div>`;
+}
+
+document.getElementById("btnAnimate").onclick=animate;
+lukisRajah();
+
+// kembali ke soalan
+function goBack(){
+  const lastQ=localStorage.getItem('lastQuestion');
+  if(lastQ!==null){
+    window.location.href="soalan-jejari-perentas.html?question="+lastQ;
+  }else history.back();
+}
+</script>
+</body>
+</html>
